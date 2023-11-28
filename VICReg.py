@@ -1,6 +1,6 @@
 
 from torchvision.models import resnet50, ResNet50_Weights
-from torchvision.transforms import v2
+import torchvision.transforms as transforms
 import torch
 import torch.nn as nn
 import torch.optim as optimizers
@@ -48,16 +48,19 @@ class VICReg(nn.Module):
         kernel_size=23
         sigma=(0.1, 2.0)
         solarize_threshold = .5
-        transforms = v2.Compose([
-            v2.RandomResizedCrop(size=(224, 224), antialias=True),
-            v2.RandomHorizontalFlip(p=0.5),
-            v2.ColorJitter(0.4, 0.4, 0.2, 0.1),
-            v2.RandomGrayscale([.2]), # [BETA] Randomly convert image or videos to grayscale with a probability of p (default 0.1).
-            v2.GaussianBlur(kernel_size , sigma), # [BETA] Blurs image with randomly chosen Gaussian blur.
-            v2.RandomSolarize(solarize_threshold, p = .1),
-            v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms = transforms.Compose([
+            transforms.RandomResizedCrop(size=(32, 32), antialias=True),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ColorJitter(0.4, 0.4, 0.2, 0.1),
+            transforms.RandomGrayscale([.2]), # [BETA] Randomly convert image or videos to grayscale with a probability of p (default 0.1).
+            transforms.GaussianBlur(kernel_size , sigma), # [BETA] Blurs image with randomly chosen Gaussian blur.
+            transforms.RandomSolarize(solarize_threshold, p = .1),
+            transforms.ToDtype(torch.float32, scale=True),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
+
+        return transforms
+        
         
     def calculate_loss(self, z, z_prime):
         """Calculate the loss function. 
